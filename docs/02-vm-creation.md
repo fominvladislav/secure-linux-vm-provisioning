@@ -178,8 +178,6 @@ sudo dnf upgrade --refresh
 sudo systemctl reboot
 ```
 
-Legacy-команда `init 6` в новой инструкции не используется.
-
 ## 10. Basic security
 
 Минимальный набор:
