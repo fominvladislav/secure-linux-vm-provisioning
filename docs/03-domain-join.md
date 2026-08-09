@@ -206,7 +206,7 @@ resolvectl status 2>/dev/null || true
 realm discover corp.example.com
 ```
 
-Чаще всего причина — неправильный DNS.
+Чаще всего причина - неправильный DNS.
 
 ### Ошибка Kerberos
 
