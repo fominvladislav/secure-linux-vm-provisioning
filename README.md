@@ -20,10 +20,9 @@ flowchart LR
     B --> C[Первичная настройка Linux]
     C --> D{Нужен домен?}
     D -- Да --> E[Ввод в Active Directory]
-    D -- Нет --> F[Проверки]
+    D -- Нет --> F[Monitoring, Backup, CMDB]
     E --> F
-    F --> G[Monitoring, Backup, CMDB]
-    G --> H[Передача владельцу]
+    F --> G[Финальные проверки]
 ```
 
 ### 1. Preparation
