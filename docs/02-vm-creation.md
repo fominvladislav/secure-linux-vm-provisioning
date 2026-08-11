@@ -278,6 +278,7 @@ hostnamectl
 ip -brief address
 ip route
 getent hosts linux-vm-01.corp.example.com
+getent hosts 192.0.2.20
 timedatectl
 systemctl --failed
 journalctl -p err -b --no-pager
