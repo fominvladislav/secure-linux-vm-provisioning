@@ -225,25 +225,9 @@ sudo visudo -c
 lsblk
 blkid
 ```
+## 12. Domain integration
 
-## 12. Monitoring и backup
-
-После установки monitoring-agent проверить:
-
-```bash
-systemctl status monitoring-agent
-systemctl is-enabled monitoring-agent
-```
-
-Также проверить поступление метрик и тестового alert.
-
-После подключения backup выполнить тестовый job и убедиться, что retention и перечень данных соответствуют требованиям.
-
-Snapshot VM не является полноценным backup.
-
-## 13. Domain integration
-
-Если сервер должен использовать доменную аутентификацию, выполнить отдельный этап ввода в Active Directory до финальных проверок.
+Если сервер должен использовать доменную аутентификацию, выполнить отдельный этап ввода в Active Directory перед подключением monitoring, backup и финальными приемочными проверками.
 
 Перед переходом необходимо убедиться, что:
 
@@ -258,9 +242,24 @@ Snapshot VM не является полноценным backup.
 
 [Ввод Linux VM в домен →](03-domain-join.md)
 
-После успешного ввода в домен вернуться к этому документу и продолжить с раздела **Acceptance checks**.
+После успешного ввода в домен вернуться к этому документу и продолжить с раздела Monitoring и backup.
 
 Если доменная интеграция не требуется, перейти сразу к следующему разделу.
+
+## 13. Monitoring и backup
+
+После установки monitoring-agent проверить:
+
+```bash
+systemctl status monitoring-agent
+systemctl is-enabled monitoring-agent
+```
+
+Также проверить поступление метрик и тестового alert.
+
+После подключения backup выполнить тестовый job и убедиться, что retention и перечень данных соответствуют требованиям.
+
+Snapshot VM не является полноценным backup.
 
 ## 14. Acceptance checks
 
