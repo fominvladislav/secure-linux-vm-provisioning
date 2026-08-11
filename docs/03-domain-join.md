@@ -137,25 +137,24 @@ sudo realm permit -g 'linux-admins@corp.example.com'
 
 Решение зависит от версии ОС, SSSD-конфигурации и внутренней политики. PAM не следует менять вручную без проверки документации конкретной версии ОС.
 
-## Winbind-option
+## Winbind option
 
-Если архитектура требует Samba Winbind:
+Winbind используется только в тех случаях, когда этого требует архитектура сервера, например для Samba member server.
 
-```bash
-sudo realm join \
-  --membership-software=samba \
-  --client-software=winbind \
-  corp.example.com
-```
+Настройка Winbind зависит от дистрибутива, версии ОС и выбранного механизма ID mapping. Поэтому универсальная конфигурация Winbind в рамках этого runbook не применяется.
 
-Проверка:
+Перед использованием Winbind необходимо отдельно определить:
 
-```bash
-realm list
-net ads info
-wbinfo --online-status
-```
+- необходимые Samba и Winbind packages;
+- NSS и PAM integration;
+- ID mapping backend и диапазоны UID/GID;
+- правила создания home directories;
+- требования к Samba services;
+- формат доменных имен пользователей и групп.
 
+SSSD и Winbind не должны одновременно использоваться как основной механизм доменной идентификации без отдельного архитектурного решения.
+
+Для обычной аутентификации Linux-пользователей через Active Directory в этом runbook используется SSSD.
 ## Login verification
 
 ```bash
