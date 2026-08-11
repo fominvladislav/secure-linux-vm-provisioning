@@ -41,7 +41,10 @@ SSSD и Winbind нельзя смешивать без отдельного те
 ```bash
 hostname --fqdn
 timedatectl
-getent hosts corp.example.com
+resolvectl status
+getent hosts linux-vm-01.corp.example.com
+getent hosts 192.0.2.20
+sudo realm -v discover corp.example.com
 ```
 
 ## Preparing an object in AD
