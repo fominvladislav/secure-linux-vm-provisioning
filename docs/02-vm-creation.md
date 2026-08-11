@@ -60,6 +60,7 @@
 ## 4. First launch
 
 ```bash
+sudo cloud-init status --wait
 cat /etc/os-release
 uname -r
 systemctl --failed
