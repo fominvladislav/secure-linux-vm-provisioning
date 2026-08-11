@@ -68,11 +68,20 @@ systemctl --failed
 
 ## 5. Hostname
 
+Если hostname не был задан через `cloud-init` или guest customization, настроить его вручную:
+
 ```bash
 sudo hostnamectl set-hostname linux-vm-01.corp.example.com
+```
+
+Проверить результат:
+
+```bash
 hostnamectl
 hostname --fqdn
 ```
+
+Если hostname уже был задан через `cloud-init`, на этом этапе достаточно выполнить проверку.
 
 Имя должно быть согласовано между VM, Linux, DNS, CMDB, monitoring и backup.
 
