@@ -191,10 +191,14 @@ sudo visudo -c
 
 ## Rollback
 
-При неудачном вводе в домен:
+При неудачном вводе в домен сначала удалить локальную конфигурацию членства:
 
 ```bash
 sudo realm leave corp.example.com
+```
+Если необходимо также удалить computer account из AD и у УЗ есть соответствующие права:
+```bash
+sudo realm leave --remove corp.example.com -U ad-join-user
 ```
 
 Затем:
