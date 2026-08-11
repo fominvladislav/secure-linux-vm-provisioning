@@ -76,6 +76,14 @@ realm discover corp.example.com
 sudo realm join corp.example.com -U ad-join-user
 ```
 
+Если computer account должен быть создан в определенной OU:
+
+```bash
+sudo realm join corp.example.com \
+  --computer-ou="OU=Linux,OU=Servers,DC=corp,DC=example,DC=com" \
+  -U ad-join-user
+```
+
 Пароль должен вводиться интерактивно. Его нельзя передавать в Git, shell script, inventory или CI-логи.
 
 Проверка:
