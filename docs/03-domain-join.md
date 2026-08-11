@@ -61,7 +61,7 @@ sudo realm -v discover corp.example.com
 
 ```bash
 sudo apt update
-sudo apt install realmd sssd sssd-tools libnss-sss libpam-sss adcli
+sudo apt install sssd-ad sssd-tools realmd adcli
 ```
 
 Обнаружение домена:
@@ -98,7 +98,7 @@ sssctl domain-status corp.example.com
 ## RHEL-compatible system: realmd + SSSD
 
 ```bash
-sudo dnf install realmd sssd adcli oddjob oddjob-mkhomedir krb5-workstation
+sudo dnf install samba-common-tools realmd oddjob oddjob-mkhomedir sssd adcli krb5-workstation
 sudo realm discover corp.example.com
 sudo realm join corp.example.com -U ad-join-user
 ```
