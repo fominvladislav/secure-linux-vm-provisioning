@@ -284,6 +284,31 @@ systemctl --failed
 journalctl -p err -b --no-pager
 ```
 
+### Automated validation
+
+Для повторяемой проверки состояния VM можно использовать read-only скрипт:
+
+[`../scripts/validate_vm.py`](../scripts/validate_vm.py)
+
+Из корня репозитория:
+
+```bash
+sudo python3 scripts/validate_vm.py \
+  --expected-fqdn linux-vm-01.corp.example.com \
+  --expected-ip 192.0.2.20
+```
+
+Если сервер должен быть присоединен к Active Directory:
+
+```bash
+sudo python3 scripts/validate_vm.py \
+  --expected-fqdn linux-vm-01.corp.example.com \
+  --expected-ip 192.0.2.20 \
+  --domain corp.example.com
+```
+
+Скрипт не изменяет конфигурацию системы и используется только для проверки состояния.
+
 Проверить:
 
 - правильный hostname;
