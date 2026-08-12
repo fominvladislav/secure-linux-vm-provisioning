@@ -198,27 +198,91 @@ def check_resolution(hostname, address):
         ["getent", "hosts", hostname]
     )
 
-    result(
-        "PASS" if rc == 0 and out else "FAIL",
-        "Forward name resolution",
-        hostname,
-    )
+    if rc != 0 or not out:
+        result(
+            "FAIL",
+            "Forward name resolution",
+            f"{hostname} was not resolved",
+        )
+
+    elif address:
+        resolved_ips = []
+
+        for line in out.splitlines():
+            for token in line.split():
+                try:
+                    ipaddress.ip_address(token)
+                    resolved_ips.append(token)
+                    break
+                except ValueError:
+                    continue
+
+        if address in resolved_ips:
+            result(
+                "PASS",
+                "Forward name resolution",
+                f"{hostname} -> {address}",
+            )
+        else:
+            result(
+                "FAIL",
+                "Forward name resolution",
+                (
+                    f"{hostname} resolved to "
+                    f"{', '.join(resolved_ips) or 'unknown'}, "
+                    f"expected {address}"
+                ),
+            )
+
+    else:
+        result(
+            "PASS",
+            "Forward name resolution",
+            hostname,
+        )
 
     if address:
         rc, out, _ = run(
             ["getent", "hosts", address]
         )
 
-        result(
-            "PASS" if rc == 0 and out else "WARN",
-            "Reverse name resolution",
-            (
-                address
-                if rc == 0 and out
-                else f"no PTR/NSS result for {address}"
-            ),
-        )
+        expected_name = hostname.rstrip(".").lower()
+        resolved_names = []
 
+        if rc == 0 and out:
+            for line in out.splitlines():
+                parts = line.split()
+
+                if len(parts) > 1:
+                    resolved_names.extend(
+                        name.rstrip(".").lower()
+                        for name in parts[1:]
+                    )
+
+        if expected_name in resolved_names:
+            result(
+                "PASS",
+                "Reverse name resolution",
+                f"{address} -> {hostname}",
+            )
+
+        elif rc == 0 and out:
+            result(
+                "FAIL",
+                "Reverse name resolution",
+                (
+                    f"{address} resolved to "
+                    f"{', '.join(resolved_names) or 'unknown'}, "
+                    f"expected {hostname}"
+                ),
+            )
+
+        else:
+            result(
+                "WARN",
+                "Reverse name resolution",
+                f"no PTR/NSS result for {address}",
+            )
 
 def check_time():
     if not exists("timedatectl"):
