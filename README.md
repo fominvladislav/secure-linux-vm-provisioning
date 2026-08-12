@@ -55,6 +55,8 @@ flowchart LR
 │   ├── netplan-single-nic.yaml
 │   ├── netplan-dual-nic.yaml
 │   └── rhel-network-nmcli.sh
+├── scripts
+│   └── validate_vm.py
 └── SECURITY.md
 ```
 
