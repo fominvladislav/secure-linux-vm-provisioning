@@ -284,6 +284,7 @@ def check_resolution(hostname, address):
                 f"no PTR/NSS result for {address}",
             )
 
+
 def check_time():
     if not exists("timedatectl"):
         result(
@@ -474,25 +475,38 @@ def check_sudoers():
 def check_realm(expected_domain):
     if not exists("realm"):
         result(
-            "INFO",
+            "FAIL" if expected_domain else "INFO",
             "Active Directory",
-            "realmd is not installed",
+            (
+                "realmd is not installed"
+                if not expected_domain
+                else (
+                    f"realmd is not installed; "
+                    f"expected domain is {expected_domain}"
+                )
+            ),
         )
         return
 
     rc, out, err = run(
-        ["realm", "list"]
+        ["realm", "list", "--name-only"]
     )
 
     if rc != 0:
         result(
-            "WARN",
+            "FAIL" if expected_domain else "WARN",
             "Active Directory",
             err or "realm list failed",
         )
         return
 
-    if not out:
+    realms = [
+        line.strip()
+        for line in out.splitlines()
+        if line.strip()
+    ]
+
+    if not realms:
         result(
             "FAIL" if expected_domain else "INFO",
             "Active Directory",
@@ -504,21 +518,35 @@ def check_realm(expected_domain):
         )
         return
 
-    if (
-        expected_domain
-        and expected_domain.lower() not in out.lower()
-    ):
-        result(
-            "FAIL",
-            "Active Directory",
-            f"joined realm does not match {expected_domain}",
-        )
+    if expected_domain:
+        expected = expected_domain.rstrip(".").lower()
+
+        normalized_realms = {
+            realm.rstrip(".").lower()
+            for realm in realms
+        }
+
+        if expected in normalized_realms:
+            result(
+                "PASS",
+                "Active Directory",
+                expected_domain,
+            )
+        else:
+            result(
+                "FAIL",
+                "Active Directory",
+                (
+                    f"joined to {', '.join(realms)}, "
+                    f"expected {expected_domain}"
+                ),
+            )
 
     else:
         result(
             "PASS",
             "Active Directory",
-            expected_domain or out.splitlines()[0],
+            ", ".join(realms),
         )
 
 
