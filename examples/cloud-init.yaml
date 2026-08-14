@@ -3,6 +3,17 @@
 # Example cloud-init configuration for an Ubuntu-based VM.
 # Replace the placeholder SSH key before use.
 # Do not store passwords, tokens, or private keys in this file.
+#
+# Network prerequisite:
+# This example assumes that a usable network configuration is supplied
+# before the first boot through datasource network-data or hypervisor
+# guest customization.
+#
+# package_update and packages require access to configured package
+# repositories during the initial cloud-init run.
+#
+# Do not use this example unchanged when networking will only be
+# configured manually after the first boot.
 
 hostname: linux-vm-01
 fqdn: linux-vm-01.corp.example.com
