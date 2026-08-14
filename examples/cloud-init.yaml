@@ -19,6 +19,15 @@ hostname: linux-vm-01
 fqdn: linux-vm-01.corp.example.com
 manage_etc_hosts: false
 
+package_update: true
+package_upgrade: false
+
+packages:
+  - chrony
+  - curl
+  - ca-certificates
+  - openssh-server
+
 users:
   - name: bootstrap-admin
     groups:
@@ -36,15 +45,6 @@ users:
 
 ssh_pwauth: false
 disable_root: true
-
-package_update: true
-package_upgrade: false
-
-packages:
-  - chrony
-  - curl
-  - ca-certificates
-  - openssh-server
 
 write_files:
   - path: /etc/issue.d/example-project.issue
