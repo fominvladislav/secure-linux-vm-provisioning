@@ -230,30 +230,104 @@ sudo systemctl reboot
 
 ## 10. Basic security
 
-Минимальный набор:
+Перед переходом к следующему этапу необходимо применить и проверить согласованный security baseline.
 
-- отключить прямой SSH-вход под `root`;
-- использовать персональные учетные записи;
-- использовать SSH-ключи;
-- ограничить sudo;
-- включить firewall;
-- проверить SELinux или AppArmor;
-- настроить журналирование;
-- установить security-agent;
-- проверить критические уязвимости;
+### SSH
 
-Пример sudoers:
-
-```sudoers
-%linux-admins ALL=(ALL:ALL) ALL
-```
-
-Проверка:
+Проверить эффективную конфигурацию SSH:
 
 ```bash
-sudo visudo -f /etc/sudoers.d/linux-admins
-sudo visudo -c
+sudo sshd -T | grep -E '^(permitrootlogin|passwordauthentication|kbdinteractiveauthentication|pubkeyauthentication)'
 ```
+
+Если используется политика из примера `cloud-init.yaml`, ожидается как минимум:
+
+* прямой SSH-вход под `root` запрещен;
+* парольная SSH-аутентификация запрещена;
+* public key authentication разрешена.
+
+Если фактическая конфигурация не соответствует согласованной SSH-policy, продолжать runbook нельзя.
+
+### Host firewall
+
+Если по принятой security-policy на VM должен использоваться host firewall, он должен быть включен и содержать только согласованные правила.
+
+Ubuntu с UFW:
+
+```bash
+sudo ufw status verbose
+```
+
+RHEL-compatible system с firewalld:
+
+```bash
+sudo firewall-cmd --state
+sudo firewall-cmd --list-all
+```
+
+Если инфраструктура использует другой host firewall, проверить его состояние и правила соответствующим корпоративным способом.
+
+Если host firewall обязателен, но не настроен, продолжать runbook нельзя.
+
+### SELinux / AppArmor
+
+Ubuntu:
+
+```bash
+sudo systemctl is-active apparmor
+sudo aa-status
+```
+
+Если AppArmor используется принятой security-policy, его обязательные профили должны быть активны.
+
+RHEL-compatible system:
+
+```bash
+getenforce
+```
+
+Ожидаемое состояние:
+
+```text
+Enforcing
+```
+
+Если SELinux должен быть `Enforcing`, но находится в `Permissive` или `Disabled`, продолжать runbook нельзя без согласованного исключения.
+
+### System logging
+
+Проверить работу локального журнала:
+
+```bash
+systemctl is-active systemd-journald
+journalctl -p err -b --no-pager
+```
+
+`systemd-journald` должен быть активен.
+
+Ошибки из текущей загрузки необходимо просмотреть и убедиться, что среди них нет неисправностей, блокирующих эксплуатацию VM.
+
+Если по требованиям используется централизованный logging или security agent, его установка и подключение должны быть завершены и проверены до финальной приемки.
+
+### Vulnerability / security check
+
+Если для VM обязателен vulnerability scan или другой корпоративный security check, он должен быть выполнен до перевода VM в READY.
+
+Критические или блокирующие findings должны быть устранены либо иметь согласованное исключение.
+
+### Exit criteria
+
+Этап Basic security считается завершенным только если:
+
+* SSH соответствует согласованной policy;
+* обязательный host firewall настроен и проверен;
+* SELinux/AppArmor находится в требуемом состоянии;
+* системное логирование работает;
+* обязательные security agents подключены;
+* обязательный vulnerability/security check выполнен;
+* отсутствуют незакрытые блокирующие security findings.
+
+Если хотя бы одно обязательное требование не выполнено, продолжать runbook нельзя.
 
 ## 11. Additional disks
 
