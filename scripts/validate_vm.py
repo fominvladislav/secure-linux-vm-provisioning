@@ -579,11 +579,11 @@ def report():
         return 1
 
     if warnings:
-        print(
-            f"Result: PASS WITH WARNINGS "
-            f"({warnings} warning)"
-        )
-        return 0
+    print(
+        f"Result: INCOMPLETE "
+        f"({warnings} warning)"
+    )
+    return 2
 
     print("Result: PASS")
     return 0
