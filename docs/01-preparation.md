@@ -13,7 +13,7 @@
 | FQDN | `linux-vm-01.corp.example.com` |
 | ОС | поддерживаемая Ubuntu LTS или RHEL-совместимая ОС |
 | Ресурсы | `4 vCPU`, `8 GiB RAM` |
-| Диски | system, data, logs |
+| Диски | назначение, размер, filesystem, mount point, LVM/partitioning и mount options для каждого доп. диска |
 | Сеть | IP, prefix, gateway, DNS, VLAN/port group |
 | Доступ | административные группы и сервисные учетные записи |
 | SSH-аутентификация | public key / GSSAPI / другой согласованный корпоративный механизм |
