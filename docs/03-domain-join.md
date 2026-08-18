@@ -41,34 +41,47 @@ SSSD и Winbind нельзя смешивать без отдельного те
 ```bash
 hostname --fqdn
 timedatectl
-resolvectl status
+resolvectl status 2>/dev/null || cat /etc/resolv.conf
 getent hosts linux-vm-01.corp.example.com
 getent hosts 192.0.2.20
-sudo realm -v discover corp.example.com
-```
+````
+
+Перед продолжением необходимо убедиться, что:
+
+* FQDN соответствует подготовленным данным;
+* прямое DNS-разрешение работает;
+* обратное DNS-разрешение работает;
+* системное время синхронизировано;
+* VM использует ожидаемые DNS-серверы.
+
+`realm discover` на этом этапе не выполняется. Сначала должны быть установлены пакеты `realmd`, `sssd` и остальные зависимости для соответствующего дистрибутива.
 
 ## Preparing an object in AD
 
 Объект компьютера может создаваться заранее, если:
 
-- права join делегированы только на конкретную OU;
-- naming policy требует предварительного контроля;
-- внутренний процесс требует CMDB/AD-согласования.
+* права join делегированы только на конкретную OU;
+* naming policy требует предварительного контроля;
+* внутренний процесс требует CMDB/AD-согласования.
 
 Это не универсальное обязательное требование.
 
 ## Ubuntu: realmd + SSSD
+
+Установить необходимые пакеты:
 
 ```bash
 sudo apt update
 sudo apt install sssd-ad sssd-tools realmd adcli
 ```
 
-Обнаружение домена:
+После установки пакетов проверить обнаружение домена:
 
 ```bash
-realm discover corp.example.com
+sudo realm -v discover corp.example.com
 ```
+
+Если домен не обнаруживается, продолжать присоединение нельзя. Необходимо устранить проблемы DNS, времени, сетевой доступности или конфигурации AD.
 
 Присоединение:
 
@@ -97,9 +110,23 @@ sssctl domain-status corp.example.com
 
 ## RHEL-compatible system: realmd + SSSD
 
+Установить необходимые пакеты:
+
 ```bash
-sudo dnf install samba-common-tools realmd oddjob oddjob-mkhomedir sssd adcli krb5-workstation
-sudo realm discover corp.example.com
+sudo dnf install samba-common-tools realmd oddjob oddjob-mkhomedir sssd sssd-tools adcli krb5-workstation
+```
+
+После установки пакетов проверить обнаружение домена:
+
+```bash
+sudo realm -v discover corp.example.com
+```
+
+Если домен не обнаруживается, продолжать присоединение нельзя.
+
+Присоединение:
+
+```bash
 sudo realm join corp.example.com -U ad-join-user
 ```
 
