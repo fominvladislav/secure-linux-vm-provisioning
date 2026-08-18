@@ -257,23 +257,116 @@ sudo visudo -c
 
 ## 11. Additional disks
 
-Для каждого диска определить:
+Если дополнительные диски для VM не запрошены, этот раздел пропускается.
 
-- назначение;
-- filesystem;
-- mount point;
-- owner и permissions;
-- параметры mount;
-- необходимость LVM;
-- необходимость backup;
-- требования к расширению.
+Если дополнительные диски запрошены, для каждого диска на этапе Preparation должны быть заранее определены:
 
-Перед форматированием:
+* назначение;
+* размер;
+* filesystem;
+* mount point;
+* используется ли LVM или обычный partitioning;
+* mount options.
+
+Если storage design для дополнительного диска не определен, продолжать provisioning нельзя.
+
+### Проверка доступных устройств
+
+Перед любыми изменениями определить системный диск и дополнительные устройства:
 
 ```bash
-lsblk
-blkid
+lsblk -o NAME,SIZE,TYPE,FSTYPE,MOUNTPOINTS,UUID
+sudo blkid
+findmnt /
 ```
+
+Не выполнять partitioning, `pvcreate`, `mkfs` или другие разрушающие операции, пока не подтверждено, какое устройство является дополнительным диском.
+
+**Системный диск форматировать запрещено.**
+
+### Настройка дополнительных дисков
+
+Для каждого дополнительного диска выполнить partitioning/LVM и создание filesystem в соответствии с согласованным storage design.
+
+После создания filesystem определить его UUID:
+
+```bash
+sudo blkid
+```
+
+Создать требуемый mount point, например:
+
+```bash
+sudo mkdir -p /data
+```
+
+Постоянное монтирование добавить в `/etc/fstab`.
+
+Перед изменением сохранить резервную копию:
+
+```bash
+sudo cp -a /etc/fstab /etc/fstab.bak
+```
+
+Для постоянного mount использовать `UUID`, а не имя устройства `/dev/sdX`, если инфраструктура не требует другого механизма.
+
+Пример записи:
+
+```text
+UUID=<filesystem-uuid> /data <filesystem> <mount-options> 0 <fsck-pass>
+```
+
+Значения `<filesystem-uuid>`, `/data`, `<filesystem>`, `<mount-options>` и `<fsck-pass>` должны соответствовать согласованному storage design и используемому filesystem.
+
+### Проверка
+
+После изменения `/etc/fstab` выполнить:
+
+```bash
+sudo findmnt --verify
+sudo mount -a
+lsblk -f
+findmnt
+df -hT
+```
+
+После успешного монтирования настроить владельца и permissions корня смонтированного filesystem в соответствии с согласованным storage design.
+
+Например:
+
+```bash
+sudo chown <owner>:<group> /data
+sudo chmod <mode> /data
+```
+
+`findmnt --verify` и `mount -a` должны завершиться без ошибок.
+
+Проверить, что каждый обязательный filesystem:
+
+* смонтирован в правильный mount point;
+* имеет ожидаемый filesystem type;
+* имеет ожидаемые mount options;
+* имеет правильного владельца и permissions.
+
+После этого выполнить перезагрузку:
+
+```bash
+sudo reboot
+```
+
+После загрузки повторно проверить:
+
+```bash
+lsblk -f
+findmnt
+df -hT
+sudo findmnt --verify
+```
+
+Все обязательные filesystem должны автоматически смонтироваться после перезагрузки.
+
+Если запрошенный дополнительный диск не настроен, отсутствует в `/etc/fstab`, не монтируется автоматически или `findmnt --verify` сообщает ошибку, продолжать runbook нельзя.
+
 ## 12. Domain integration
 
 Если сервер должен использовать доменную аутентификацию, выполнить отдельный этап ввода в Active Directory перед подключением monitoring, backup и финальными приемочными проверками.
